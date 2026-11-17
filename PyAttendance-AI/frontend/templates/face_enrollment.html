@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Face Enrollment — PyAttendance AI{% endblock %}
+{% block header %}Authorized Biometric Face Enrollment{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card border p-4">
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Select Student</label>
+        <select id="studentSelect" class="form-select"></select>
+      </div>
+      <div class="alert alert-info small">
+        Only encrypted facial embeddings are stored. Raw camera photos are discarded after feature extraction. Explicit authorization is required.
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="consentCheck">
+        <label class="form-check-label small" for="consentCheck">Student consent confirmed</label>
+      </div>
+      <button id="enrollBtn" class="btn btn-dark btn-sm">Capture &amp; Enroll Face</button>
+      <div id="enrollStatus" class="small mt-3"></div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card border p-3 bg-dark text-white">
+      <video id="webcamVideo" autoplay muted playsinline class="w-100 rounded" style="max-height: 360px;"></video>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script>
+fetch('/api/students').then(r => r.json()).then(d => {
+  document.getElementById('studentSelect').innerHTML = d.students.map(s => `<option value="${s.student_id}">${s.roll_number} - ${s.name}</option>`).join('');
+});
+PyCam.start('webcamVideo');
+document.getElementById('enrollBtn').addEventListener('click', async () => {
+  const consent = document.getElementById('consentCheck').checked;
+  const img = PyCam.captureBase64('webcamVideo');
+  const res = await fetch('/api/students/enroll', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ student_id: document.getElementById('studentSelect').value, consent_confirmed: consent, image_base64: img })
+  });
+  const data = await res.json();
+  document.getElementById('enrollStatus').textContent = res.ok ? 'Enrolled successfully.' : (data.error || 'Enrollment failed.');
+});
+window.addEventListener('beforeunload', () => PyCam.stop());
+</script>
+{% endblock %}

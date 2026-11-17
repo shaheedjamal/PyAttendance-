@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Live Attendance Camera — PyAttendance AI{% endblock %}
+{% block header %}Live Classroom Attendance{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card border p-3">
+      <div class="d-flex gap-2 mb-3">
+        <input id="subjectIdInput" type="number" class="form-control form-control-sm" value="1" placeholder="Subject ID">
+        <button id="startSessionBtn" class="btn btn-success btn-sm text-nowrap">Start Session</button>
+        <button id="scanBtn" class="btn btn-primary btn-sm text-nowrap">Scan Frame</button>
+        <button id="closeSessionBtn" class="btn btn-danger btn-sm text-nowrap">Close Session</button>
+      </div>
+      <video id="attendanceVideo" autoplay muted playsinline class="w-100 bg-dark rounded" style="max-height: 360px;"></video>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border p-3">
+      <h2 class="h6 fw-semibold">Recognition Results</h2>
+      <pre id="recognitionLog" class="small bg-light p-2 rounded" style="min-height: 200px;">Session standby.</pre>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script>
+let currentSessionId = null;
+PyCam.start('attendanceVideo');
+document.getElementById('startSessionBtn').addEventListener('click', async () => {
+  const res = await fetch('/api/sessions/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subject_id: document.getElementById('subjectIdInput').value })
+  });
+  const data = await res.json();
+  currentSessionId = data.session?.session_id || null;
+  document.getElementById('recognitionLog').textContent = JSON.stringify(data, null, 2);
+});
+document.getElementById('scanBtn').addEventListener('click', async () => {
+  if (!currentSessionId) return;
+  const img = PyCam.captureBase64('attendanceVideo');
+  const res = await fetch('/api/attendance/recognize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: currentSessionId, image_base64: img })
+  });
+  document.getElementById('recognitionLog').textContent = JSON.stringify(await res.json(), null, 2);
+});
+document.getElementById('closeSessionBtn').addEventListener('click', async () => {
+  if (!currentSessionId) return;
+  await fetch(`/api/sessions/${currentSessionId}/close`, { method: 'POST' });
+  PyCam.stop();
+});
+window.addEventListener('beforeunload', () => PyCam.stop());
+</script>
+{% endblock %}

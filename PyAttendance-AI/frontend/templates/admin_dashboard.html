@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — PyAttendance AI{% endblock %}
+{% block header %}Administrator Overview{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4" id="kpiRow"></div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card border p-3">
+      <h2 class="h6 fw-semibold">Monthly Attendance Trend</h2>
+      <canvas id="monthlyChart" height="160"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border p-3">
+      <h2 class="h6 fw-semibold">Department Attendance Comparison</h2>
+      <canvas id="deptChart" height="160"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+Promise.all([
+  fetch('/api/analytics/overview').then(r => r.json()),
+  fetch('/api/analytics/monthly').then(r => r.json()),
+  fetch('/api/analytics/department').then(r => r.json()),
+]).then(([ov, mo, dp]) => {
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="col-md-3"><div class="card border p-3"><div class="small text-muted">Students</div><div class="h4 mb-0">${ov.total_students}</div></div></div>
+    <div class="col-md-3"><div class="card border p-3"><div class="small text-muted">Faculty</div><div class="h4 mb-0">${ov.total_faculty}</div></div></div>
+    <div class="col-md-3"><div class="card border p-3"><div class="small text-muted">Subjects</div><div class="h4 mb-0">${ov.total_subjects}</div></div></div>
+    <div class="col-md-3"><div class="card border p-3"><div class="small text-muted">Active Sessions</div><div class="h4 mb-0">${ov.active_sessions}</div></div></div>`;
+  new Chart(document.getElementById('monthlyChart'), {
+    type: 'line',
+    data: { labels: mo.series.map(s => s.date), datasets: [{ label: 'Attended', data: mo.series.map(s => s.attended), borderColor: '#0d9488' }] }
+  });
+  new Chart(document.getElementById('deptChart'), {
+    type: 'bar',
+    data: { labels: dp.departments.map(d => d.code), datasets: [{ label: 'Attended', data: dp.departments.map(d => d.attended), backgroundColor: '#1e3a8a' }] }
+  });
+});
+</script>
+{% endblock %}

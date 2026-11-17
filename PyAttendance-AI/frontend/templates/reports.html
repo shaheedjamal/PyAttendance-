@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Reports — PyAttendance AI{% endblock %}
+{% block header %}Attendance Reports{% endblock %}
+{% block content %}
+<div class="card border p-4">
+  <h2 class="h6 fw-semibold mb-3">Export Institutional Attendance Reports</h2>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="/api/reports/pdf" class="btn btn-dark btn-sm">Download PDF</a>
+    <a href="/api/reports/excel" class="btn btn-success btn-sm">Download Excel (.xlsx)</a>
+    <a href="/api/reports/csv" class="btn btn-outline-secondary btn-sm">Download CSV</a>
+  </div>
+</div>
+{% endblock %}

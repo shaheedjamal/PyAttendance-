@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Sign In — PyAttendance AI{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 460px;">
+  <div class="card border shadow-sm">
+    <div class="card-body p-4">
+      <h2 class="h5 fw-bold mb-1">PyAttendance AI</h2>
+      <p class="text-muted small mb-4">Sign in with your institutional account.</p>
+      <div id="loginError" class="alert alert-danger d-none small"></div>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label small">Role</label>
+          <select id="role" class="form-select">
+            <option value="admin">Administrator</option>
+            <option value="faculty">Faculty</option>
+            <option value="student">Student</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small">Email or Roll Number</label>
+          <input id="email" type="text" class="form-control" required value="admin@pyattendance.edu">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small">Password</label>
+          <input id="password" type="password" class="form-control" required value="Admin@123">
+        </div>
+        <button type="submit" class="btn btn-dark w-100">Sign In</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      role: document.getElementById('role').value,
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    const err = document.getElementById('loginError');
+    err.textContent = data.error || 'Login failed';
+    err.classList.remove('d-none');
+    return;
+  }
+  window.location.href = '/';
+});
+</script>
+{% endblock %}

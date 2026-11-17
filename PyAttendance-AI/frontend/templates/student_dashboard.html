@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard — PyAttendance AI{% endblock %}
+{% block header %}My Attendance Summary{% endblock %}
+{% block content %}
+<div class="card border p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <h2 class="h6 fw-semibold mb-0">Attendance History</h2>
+    <a href="/api/reports/pdf" class="btn btn-dark btn-sm">Download PDF</a>
+  </div>
+  <div id="studentAttendance" class="table-responsive mt-3"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/attendance').then(r => r.json()).then(data => {
+  const rows = data.attendance.map(a => `<tr><td>${a.timestamp.slice(0,10)}</td><td>${a.status}</td><td>${a.verification_method}</td></tr>`).join('');
+  document.getElementById('studentAttendance').innerHTML = `<table class="table table-sm"><thead><tr><th>Date</th><th>Status</th><th>Method</th></tr></thead><tbody>${rows}</tbody></table>`;
+});
+</script>
+{% endblock %}

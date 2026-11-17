@@ -1,0 +1,6 @@
+{
+  "name": "PyAttendance AI",
+  "description": "Face Recognition Classroom-Based Attendance Management System with multi-role Admin, Faculty, and Student dashboards, biometric template encryption, live multi-face detection, manual review workflows, and PDF/Excel/CSV reporting.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

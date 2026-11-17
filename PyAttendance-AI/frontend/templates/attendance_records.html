@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Attendance Records — PyAttendance AI{% endblock %}
+{% block header %}Attendance History &amp; Corrections{% endblock %}
+{% block content %}
+<div class="card border p-3">
+  <div id="recordsTable" class="table-responsive"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/attendance').then(r => r.json()).then(data => {
+  const rows = data.attendance.map(a => `<tr><td>${a.roll_number}</td><td>${a.student_name}</td><td>${a.status}</td><td>${a.verification_method}</td><td>${a.reviewed_by || 'Pending'}</td></tr>`).join('');
+  document.getElementById('recordsTable').innerHTML = `<table class="table table-sm"><thead><tr><th>Roll No</th><th>Student</th><th>Status</th><th>Method</th><th>Reviewed By</th></tr></thead><tbody>${rows}</tbody></table>`;
+});
+</script>
+{% endblock %}

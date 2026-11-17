@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Students — PyAttendance AI{% endblock %}
+{% block header %}Student Directory{% endblock %}
+{% block content %}
+<div class="card border p-3">
+  <div id="studentsTable" class="table-responsive"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/students').then(r => r.json()).then(data => {
+  const rows = data.students.map(s => `<tr><td>${s.roll_number}</td><td>${s.name}</td><td>${s.email}</td><td>Sem ${s.semester}</td><td>${s.face_enrolled ? 'Enrolled' : 'Pending'}</td></tr>`).join('');
+  document.getElementById('studentsTable').innerHTML = `<table class="table table-sm"><thead><tr><th>Roll No</th><th>Name</th><th>Email</th><th>Semester</th><th>Biometrics</th></tr></thead><tbody>${rows}</tbody></table>`;
+});
+</script>
+{% endblock %}

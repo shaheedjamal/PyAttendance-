@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Faculty Dashboard — PyAttendance AI{% endblock %}
+{% block header %}Faculty Workspace{% endblock %}
+{% block content %}
+<div class="card border p-4 mb-4">
+  <h2 class="h6 fw-semibold">Quick Actions</h2>
+  <div class="d-flex flex-wrap gap-2 mt-2">
+    <a href="{{ url_for('views.attendance_camera_page') }}" class="btn btn-dark btn-sm">Start Camera Attendance</a>
+    <a href="{{ url_for('views.attendance_records_page') }}" class="btn btn-outline-secondary btn-sm">Review &amp; Correct Attendance</a>
+    <a href="{{ url_for('views.reports_page') }}" class="btn btn-outline-secondary btn-sm">Download Reports</a>
+  </div>
+</div>
+<div class="card border p-3">
+  <h2 class="h6 fw-semibold">Recent Sessions</h2>
+  <div id="sessionsList" class="table-responsive mt-2"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/sessions').then(r => r.json()).then(data => {
+  const rows = data.sessions.map(s => `<tr><td>#${s.session_id}</td><td>${s.subject_code}</td><td>${s.session_date}</td><td>${s.session_status}</td></tr>`).join('');
+  document.getElementById('sessionsList').innerHTML = `<table class="table table-sm"><thead><tr><th>Session</th><th>Subject</th><th>Date</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+});
+</script>
+{% endblock %}

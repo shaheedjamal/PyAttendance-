@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Faculty — PyAttendance AI{% endblock %}
+{% block header %}Faculty Management{% endblock %}
+{% block content %}
+<div class="card border p-3">
+  <div id="facultyTable" class="table-responsive"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/faculty').then(r => r.json()).then(data => {
+  const rows = data.faculty.map(f => `<tr><td>${f.employee_code}</td><td>${f.name}</td><td>${f.email}</td><td>${f.designation}</td></tr>`).join('');
+  document.getElementById('facultyTable').innerHTML = `<table class="table table-sm"><thead><tr><th>Code</th><th>Name</th><th>Email</th><th>Designation</th></tr></thead><tbody>${rows}</tbody></table>`;
+});
+</script>
+{% endblock %}
